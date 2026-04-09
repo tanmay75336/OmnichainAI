@@ -4,7 +4,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv(dotenv_path=Path(".env"), override=False)
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = BACKEND_DIR.parent
+
+for dotenv_path in (BACKEND_DIR / ".env", PROJECT_ROOT / ".env"):
+    load_dotenv(dotenv_path=dotenv_path, override=False)
 
 
 class BaseConfig:
