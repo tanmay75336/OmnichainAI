@@ -1,0 +1,14 @@
+{
+  "tier_2": {
+    "infrastructure_risk_score": 0.55,
+    "description": "Tier-2 region with moderate infrastructure resiliency and mid-mile uncertainty."
+  },
+  "tier_3": {
+    "infrastructure_risk_score": 0.82,
+    "description": "Tier-3 region with higher last-mile vulnerability and lower infrastructure redundancy."
+  },
+  "sez": {
+    "infrastructure_risk_score": 0.2,
+    "description": "SEZ corridor with stronger infrastructure, customs readiness, and lower disruption exposure."
+  }
+}
