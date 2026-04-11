@@ -19,3 +19,7 @@ def get_region_risk_metadata(region_type):
     if metadata:
         return metadata
     return _RISK_METADATA["tier_2"]
+
+
+def get_all_region_risk_metadata():
+    return dict(_RISK_METADATA)

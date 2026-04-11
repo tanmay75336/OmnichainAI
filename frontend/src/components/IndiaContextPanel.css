@@ -1,0 +1,127 @@
+.india-panel__body {
+  padding: 16px;
+}
+
+.panel__header-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 12px;
+  font-style: italic;
+}
+
+.india-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.tier-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  background: var(--bg-panel);
+  transition: border-color 0.15s;
+}
+
+.tier-card--active {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-light);
+}
+
+.tier-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tier-card__label {
+  font-family: var(--font-condensed);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tier-card__table {
+  margin-bottom: 10px;
+}
+
+.tier-card__text {
+  text-align: left;
+  font-size: 11px;
+}
+
+.tier-card__note {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+}
+
+.india-note {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+
+/* Seasonal */
+.seasonal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.seasonal-item {
+  padding: 10px 12px;
+  border-right: 1px solid var(--border);
+}
+
+.seasonal-item:last-child {
+  border-right: none;
+}
+
+.seasonal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.seasonal-period {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.seasonal-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-family: var(--font-condensed);
+}
+
+.seasonal-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .india-tier-grid {
+    grid-template-columns: 1fr;
+  }
+  .seasonal-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

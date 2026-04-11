@@ -14,9 +14,14 @@ for dotenv_path in (BACKEND_DIR / ".env", PROJECT_ROOT / ".env"):
 class BaseConfig:
     DEBUG = os.getenv("DEBUG", "false").lower() == "true"
     PORT = int(os.getenv("PORT", "5000"))
-    GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
+    ORS_API_KEY = os.getenv("ORS_API_KEY", "")
     OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
     OPENWEATHER_UNITS = os.getenv("OPENWEATHER_UNITS", "metric")
+    NOMINATIM_USER_AGENT = os.getenv(
+        "NOMINATIM_USER_AGENT",
+        "smart-supply-chain-optimization/1.0",
+    )
+    NOMINATIM_EMAIL = os.getenv("NOMINATIM_EMAIL", "")
     CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "600"))
     REQUEST_TIMEOUT_SECONDS = int(os.getenv("REQUEST_TIMEOUT_SECONDS", "10"))
 

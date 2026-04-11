@@ -1,14 +1,29 @@
 {
   "tier_2": {
-    "infrastructure_risk_score": 0.55,
-    "description": "Tier-2 region with moderate infrastructure resiliency and mid-mile uncertainty."
+    "infrastructure_risk_score": 0.56,
+    "description": "Tier-2 region with moderate infrastructure resiliency and mid-mile uncertainty.",
+    "connectivity_label": "Moderate",
+    "infrastructure_quality": "National-highway connectivity with partial expressway access.",
+    "last_mile_profile": "Decent last-mile performance with moderate suburban delivery variability.",
+    "sez_exit_delay_risk": "Medium",
+    "recommended_buffer_hours": 6
   },
   "tier_3": {
     "infrastructure_risk_score": 0.82,
-    "description": "Tier-3 region with higher last-mile vulnerability and lower infrastructure redundancy."
+    "description": "Tier-3 region with higher last-mile vulnerability and lower infrastructure redundancy.",
+    "connectivity_label": "Weak",
+    "infrastructure_quality": "State-highway and district-road dependency with limited redundancy.",
+    "last_mile_profile": "High last-mile delay probability and lower warehousing depth.",
+    "sez_exit_delay_risk": "High",
+    "recommended_buffer_hours": 12
   },
   "sez": {
-    "infrastructure_risk_score": 0.2,
-    "description": "SEZ corridor with stronger infrastructure, customs readiness, and lower disruption exposure."
+    "infrastructure_risk_score": 0.22,
+    "description": "SEZ corridor with stronger infrastructure, customs readiness, and lower disruption exposure.",
+    "connectivity_label": "Strong",
+    "infrastructure_quality": "Dedicated industrial infrastructure with better customs/process readiness.",
+    "last_mile_profile": "Stable internal last-mile movement with controlled gate operations.",
+    "sez_exit_delay_risk": "Medium",
+    "recommended_buffer_hours": 4
   }
 }
