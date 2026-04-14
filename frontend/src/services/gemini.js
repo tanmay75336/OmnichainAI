@@ -51,6 +51,10 @@ export async function fetchGeminiOperationalNews({
   const weather = routeData?.weather
   const risk = routeData?.risk
   const simulation = simulationResult
+  const cargo = routeData?.cargo_profile
+  const traffic = route?.traffic_analysis
+  const shipmentPricing = routeData?.shipment_pricing
+  const regionContext = routeData?.region_context
 
   const prompt = [
     'You are generating an Indian logistics decision-intelligence briefing.',
@@ -64,11 +68,16 @@ export async function fetchGeminiOperationalNews({
     '- If live public news is uncertain, provide route-relevant operational watch items rather than fake headlines.',
     '- Keep exactly 4 items.',
     '',
-    `Route: ${route?.source || 'n/a'} -> ${route?.destination || 'n/a'}`,
+    `Route: ${route?.source_details?.label || route?.source || 'n/a'} -> ${route?.destination_details?.label || route?.destination || 'n/a'}`,
     `Mode: ${route?.transport_mode || 'n/a'}`,
     `Region: ${routeData?.region_type || 'n/a'}`,
+    `Region rationale: ${regionContext?.reason || 'n/a'}`,
     `Shipment date: ${shipmentDate || 'not selected'}`,
     `Weather: ${weather?.condition || 'n/a'}, rainfall ${weather?.rainfall_mm ?? 'n/a'} mm, visibility ${weather?.visibility_km ?? 'n/a'} km`,
+    `Route outlook: ${(routeData?.weather_outlook || []).map((item) => `${item.date || item.date_index}:${item.condition_label}/${item.avg_temp_c}C`).join(' | ') || 'n/a'}`,
+    `Cargo: weight ${cargo?.weight_kg ?? 'n/a'} kg, billable ${cargo?.billable_weight_kg ?? 'n/a'} kg, quantity ${cargo?.quantity ?? 'n/a'}`,
+    `Shipment quote: INR ${shipmentPricing?.selected_estimate_inr ?? 'n/a'}, range ${shipmentPricing?.estimated_range_inr?.min ?? 'n/a'}-${shipmentPricing?.estimated_range_inr?.max ?? 'n/a'}`,
+    `Traffic: ${traffic?.status || 'n/a'}, delay ${traffic?.projected_delay_minutes ?? 'n/a'} mins, advisory ${traffic?.advisory || 'n/a'}`,
     `Risk: ${risk?.overall_risk || 'n/a'} (${risk?.weighted_score_pct ?? 'n/a'}%)`,
     `Simulation: ${simulation?.summary || 'No active disruption simulation'}`,
   ].join('\n')

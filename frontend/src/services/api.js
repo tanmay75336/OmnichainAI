@@ -89,3 +89,13 @@ export async function simulateRoute({ route, disruptionId }) {
       `${disruption.backendMapping}.`,
   }
 }
+
+export async function createTrackingShipment(payload) {
+  const response = await api.post('/tracking/shipments', payload)
+  return response.data.data
+}
+
+export async function getTrackingShipment(shipmentId) {
+  const response = await api.get(`/tracking/shipments/${shipmentId}`)
+  return response.data.data
+}

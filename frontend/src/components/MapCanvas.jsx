@@ -5,6 +5,7 @@ export default function MapCanvas({
   center = [22.9734, 78.6569],
   zoom = 5,
   polyline = [],
+  polylines = [],
   markers = [],
   emptyMessage = 'Map will appear after route data is available.',
 }) {
@@ -42,16 +43,32 @@ export default function MapCanvas({
 
     layerGroupRef.current.clearLayers()
     const bounds = []
+    const lineSet = polylines.length
+      ? polylines
+      : polyline.length
+        ? [{ positions: polyline, color: '#1f5f8b', weight: 4, opacity: 0.85, dashArray: '10 6' }]
+        : []
 
-    if (polyline.length >= 2) {
-      const line = L.polyline(polyline, {
-        color: '#1f5f8b',
-        weight: 4,
-        opacity: 0.85,
-        dashArray: '10 6',
+    lineSet.forEach((lineConfig) => {
+      if (!lineConfig?.positions?.length || lineConfig.positions.length < 2) {
+        return
+      }
+
+      const line = L.polyline(lineConfig.positions, {
+        color: lineConfig.color || '#1f5f8b',
+        weight: lineConfig.weight || 4,
+        opacity: lineConfig.opacity ?? 0.85,
+        dashArray: lineConfig.dashArray,
       }).addTo(layerGroupRef.current)
+
+      if (lineConfig.label) {
+        line.bindTooltip(lineConfig.label, {
+          sticky: true,
+        })
+      }
+
       bounds.push(...line.getLatLngs())
-    }
+    })
 
     markers.forEach((marker) => {
       if (!marker.position) {
@@ -91,9 +108,9 @@ export default function MapCanvas({
     } else {
       mapRef.current.setView(center, zoom)
     }
-  }, [center, zoom, markers, polyline])
+  }, [center, zoom, markers, polyline, polylines])
 
-  const isEmpty = !polyline.length && !markers.length
+  const isEmpty = !polyline.length && !polylines.length && !markers.length
 
   return (
     <div className="map-shell">

@@ -17,6 +17,8 @@ class BaseConfig:
     ORS_API_KEY = os.getenv("ORS_API_KEY", "")
     OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
     OPENWEATHER_UNITS = os.getenv("OPENWEATHER_UNITS", "metric")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
     NOMINATIM_USER_AGENT = os.getenv(
         "NOMINATIM_USER_AGENT",
         "smart-supply-chain-optimization/1.0",
@@ -24,6 +26,10 @@ class BaseConfig:
     NOMINATIM_EMAIL = os.getenv("NOMINATIM_EMAIL", "")
     CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", "600"))
     REQUEST_TIMEOUT_SECONDS = int(os.getenv("REQUEST_TIMEOUT_SECONDS", "10"))
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    SUPABASE_SHIPMENTS_TABLE = os.getenv("SUPABASE_SHIPMENTS_TABLE", "shipment_tracking")
+    TRACKING_POLL_SECONDS = int(os.getenv("TRACKING_POLL_SECONDS", "15"))
 
 
 class DevelopmentConfig(BaseConfig):

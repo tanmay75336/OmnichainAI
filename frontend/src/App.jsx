@@ -8,24 +8,36 @@ import RecommendationPanel from './components/RecommendationPanel'
 import RouteMapPanel from './components/RouteMapPanel'
 import SupplyNewsAlertsPanel from './components/SupplyNewsAlertsPanel'
 import TrackingSection from './components/TrackingSection'
-import { checkHealth, getRoute, simulateRoute } from './services/api'
+import {
+  checkHealth,
+  createTrackingShipment,
+  getRoute,
+  getTrackingShipment,
+  simulateRoute,
+} from './services/api'
 import {
   fetchGeminiOperationalNews,
   getGeminiConfigState,
 } from './services/gemini'
 import {
   buildOperationalAlerts,
-  buildWeatherTrend,
   deriveDisruptionSignals,
   getTodayDateString,
 } from './utils/intelligence'
-import { buildShipmentRecord, findShipmentRecord } from './utils/tracking'
 
 const DEFAULT_FORM = {
-  source: 'Mumbai',
-  destination: 'Pune',
+  source: 'Warehouse 14, Wagle Industrial Estate, Thane, Maharashtra 400604',
+  destination: 'Shop No. 100, Hiranandani Estate, Thane West, Mumbai, Maharashtra 400607',
   transport_mode: 'road',
-  region_type: 'tier_2',
+  cargo: {
+    weight_kg: '120',
+    quantity: '24',
+    dimensions_cm: {
+      length: '60',
+      width: '45',
+      height: '35',
+    },
+  },
 }
 
 const DEFAULT_NEWS_STATE = {
@@ -35,6 +47,7 @@ const DEFAULT_NEWS_STATE = {
 }
 
 export default function App() {
+  const [backendHealth, setBackendHealth] = useState(null)
   const [backendStatus, setBackendStatus] = useState('checking')
   const [routeForm, setRouteForm] = useState(DEFAULT_FORM)
   const [shipmentDate, setShipmentDate] = useState(getTodayDateString())
@@ -49,12 +62,17 @@ export default function App() {
   const [simulationError, setSimulationError] = useState('')
 
   const [newsState, setNewsState] = useState(DEFAULT_NEWS_STATE)
-  const [shipmentLookupId, setShipmentLookupId] = useState('')
+  const [trackingDraftId, setTrackingDraftId] = useState('')
+  const [activeTrackingId, setActiveTrackingId] = useState('')
+  const [trackingSnapshot, setTrackingSnapshot] = useState(null)
+  const [trackingLoading, setTrackingLoading] = useState(false)
+  const [trackingError, setTrackingError] = useState('')
 
   useEffect(() => {
     async function pingBackend() {
       try {
-        await checkHealth()
+        const data = await checkHealth()
+        setBackendHealth(data)
         setBackendStatus('online')
       } catch {
         setBackendStatus('offline')
@@ -66,32 +84,9 @@ export default function App() {
     return () => window.clearInterval(interval)
   }, [])
 
-  const weatherTrend = useMemo(
-    () => buildWeatherTrend(routeData?.weather, shipmentDate),
-    [routeData, shipmentDate]
-  )
-
   const disruptionSignals = useMemo(
     () => deriveDisruptionSignals({ routeData, shipmentDate }),
     [routeData, shipmentDate]
-  )
-
-  const shipmentRecord = useMemo(
-    () => buildShipmentRecord(routeData, shipmentDate),
-    [routeData, shipmentDate]
-  )
-
-  useEffect(() => {
-    if (shipmentRecord) {
-      setShipmentLookupId(shipmentRecord.shipmentId)
-    } else {
-      setShipmentLookupId('')
-    }
-  }, [shipmentRecord])
-
-  const shipmentFound = useMemo(
-    () => findShipmentRecord(shipmentLookupId, shipmentRecord),
-    [shipmentLookupId, shipmentRecord]
   )
 
   const alerts = useMemo(
@@ -111,15 +106,17 @@ export default function App() {
       routing: routeData ? (routeData.route?.is_fallback ? 'fallback' : 'live') : 'checking',
       weather: routeData ? (routeData.weather?.is_fallback ? 'fallback' : 'live') : 'checking',
       gemini:
-        newsState.status === 'ready'
+        newsState.status === 'ready' || backendHealth?.gemini?.configured
           ? 'live'
           : newsState.status === 'error'
             ? 'error'
             : newsState.status === 'not_configured'
-              ? 'missing'
+              ? backendHealth?.gemini?.configured
+                ? 'configured'
+                : 'missing'
               : getGeminiConfigState(),
     }),
-    [backendStatus, newsState, routeData]
+    [backendHealth?.gemini?.configured, backendStatus, newsState, routeData]
   )
 
   async function handleAnalyzeRoute() {
@@ -127,12 +124,30 @@ export default function App() {
     setRouteError('')
     setSimulationResult(null)
     setSimulationError('')
+    setTrackingError('')
 
     try {
       const data = await getRoute(routeForm)
       setRouteData(data)
+      try {
+        const tracking = await createTrackingShipment({
+          source: routeForm.source,
+          destination: routeForm.destination,
+          transport_mode: routeForm.transport_mode,
+          region_type: data.region_type,
+          cargo: routeForm.cargo,
+          shipment_date: shipmentDate,
+        })
+        setTrackingSnapshot(tracking)
+        setTrackingDraftId(tracking.shipment_id)
+        setActiveTrackingId(tracking.shipment_id)
+      } catch (trackingInitError) {
+        setTrackingSnapshot(null)
+        setTrackingError(trackingInitError.message || 'Tracking initialization failed.')
+      }
     } catch (error) {
       setRouteData(null)
+      setTrackingSnapshot(null)
       setRouteError(error.message || 'Failed to analyze route.')
     } finally {
       setRouteLoading(false)
@@ -159,6 +174,70 @@ export default function App() {
       setSimulationLoading(false)
     }
   }
+
+  function handleTrackShipment() {
+    const nextId = trackingDraftId.trim().toUpperCase()
+    if (!nextId) {
+      return
+    }
+    setTrackingError('')
+    if (nextId !== activeTrackingId) {
+      setTrackingSnapshot(null)
+    }
+    setActiveTrackingId(nextId)
+  }
+
+  useEffect(() => {
+    let active = true
+
+    async function loadTrackingSnapshot(showLoader = true) {
+      if (!activeTrackingId) {
+        return
+      }
+
+      if (showLoader) {
+        setTrackingLoading(true)
+      }
+
+      try {
+        const snapshot = await getTrackingShipment(activeTrackingId)
+        if (active) {
+          setTrackingSnapshot(snapshot)
+          setTrackingError('')
+        }
+      } catch (error) {
+        if (active) {
+          setTrackingError(error.message || 'Tracking lookup failed.')
+        }
+      } finally {
+        if (active && showLoader) {
+          setTrackingLoading(false)
+        }
+      }
+    }
+
+    if (!activeTrackingId) {
+      setTrackingSnapshot(null)
+      setTrackingLoading(false)
+      return () => {
+        active = false
+      }
+    }
+
+    loadTrackingSnapshot(true)
+    const pollMs = Math.max(
+      5000,
+      (trackingSnapshot?.poll_seconds || backendHealth?.tracking?.poll_seconds || 15) * 1000
+    )
+    const interval = window.setInterval(() => {
+      loadTrackingSnapshot(false)
+    }, pollMs)
+
+    return () => {
+      active = false
+      window.clearInterval(interval)
+    }
+  }, [activeTrackingId, backendHealth?.tracking?.poll_seconds, trackingSnapshot?.poll_seconds])
 
   useEffect(() => {
     let active = true
@@ -206,7 +285,11 @@ export default function App() {
       <TopBar
         serviceStatus={serviceStatus}
         routeData={routeData}
-        shipmentRecord={shipmentRecord}
+        shipmentRecord={
+          trackingSnapshot
+            ? { shipmentId: trackingSnapshot.shipment_id }
+            : null
+        }
       />
 
       <main className="workspace">
@@ -218,7 +301,7 @@ export default function App() {
             loading={routeLoading}
             error={routeError}
             routeData={routeData}
-            shipmentId={shipmentRecord?.shipmentId}
+            shipmentId={trackingSnapshot?.shipment_id}
           />
           <ModalComparisonPanel routeData={routeData} />
           <WeatherDisruptionPanel
@@ -235,7 +318,6 @@ export default function App() {
           />
           <WeatherNewsPanel
             routeData={routeData}
-            weatherTrend={weatherTrend}
             newsState={newsState}
           />
         </section>
@@ -255,10 +337,12 @@ export default function App() {
         />
 
         <TrackingSection
-          shipmentLookupId={shipmentLookupId}
-          onShipmentLookupIdChange={setShipmentLookupId}
-          shipmentRecord={shipmentRecord}
-          shipmentFound={shipmentFound}
+          trackingDraftId={trackingDraftId}
+          onTrackingDraftIdChange={setTrackingDraftId}
+          onTrackShipment={handleTrackShipment}
+          trackingSnapshot={trackingSnapshot}
+          trackingLoading={trackingLoading}
+          trackingError={trackingError}
         />
       </main>
     </div>

@@ -72,6 +72,16 @@ export function toLatLng(coordinates) {
   return [coordinates[1], coordinates[0]]
 }
 
+export function toLatLngList(coordinatesList) {
+  if (!Array.isArray(coordinatesList)) {
+    return []
+  }
+
+  return coordinatesList
+    .map((coordinates) => toLatLng(coordinates))
+    .filter(Boolean)
+}
+
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }

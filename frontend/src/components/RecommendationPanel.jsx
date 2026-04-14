@@ -1,13 +1,17 @@
 import SectionCard from './SectionCard'
+import { formatCurrency } from '../utils/formatters'
 
 export default function RecommendationPanel({ routeData, simulationResult }) {
   const decisionSupport = routeData?.decision_support
   const recommendation = routeData?.suggested_transport_mode
+  const shipmentPricing = routeData?.shipment_pricing
+  const cargoBrief = routeData?.gemini_cargo_brief
+  const traffic = routeData?.route?.traffic_analysis
 
   return (
     <SectionCard
       title="Recommendation Engine"
-      subtitle="Transport switch, mitigation, route stages"
+      subtitle="Transport switch, mitigation, cargo note, and route stages"
     >
       {routeData ? (
         <div className="recommendation-grid">
@@ -15,6 +19,7 @@ export default function RecommendationPanel({ routeData, simulationResult }) {
             <span>Primary recommendation</span>
             <strong>{recommendation?.rationale}</strong>
             <p>{decisionSupport?.executive_summary}</p>
+            {cargoBrief?.summary ? <p>{cargoBrief.summary}</p> : null}
           </div>
 
           <div className="report-block">
@@ -38,6 +43,35 @@ export default function RecommendationPanel({ routeData, simulationResult }) {
               {decisionSupport?.distribution_model?.description}
             </p>
             <p className="report-note">{decisionSupport?.last_mile_strategy}</p>
+          </div>
+
+          <div className="report-block">
+            <h3>Traffic + cost watch</h3>
+            <ul className="bullet-list">
+              <li>{traffic?.advisory}</li>
+              <li>
+                Current benchmark quote: {formatCurrency(shipmentPricing?.selected_estimate_inr)}
+              </li>
+              {cargoBrief?.cost_driver ? <li>{cargoBrief.cost_driver}</li> : null}
+              {cargoBrief?.operations_note ? <li>{cargoBrief.operations_note}</li> : null}
+            </ul>
+          </div>
+
+          <div className="report-block">
+            <h3>Agency benchmark watch</h3>
+            {shipmentPricing?.benchmark_quotes?.length ? (
+              <ul className="bullet-list">
+                {shipmentPricing.benchmark_quotes.map((quote) => (
+                  <li key={quote.agency}>
+                    <strong>{quote.agency}:</strong> {formatCurrency(quote.total_estimate_inr)} | {quote.serviceability}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="empty-state">
+                Benchmark carrier quotes will appear after route analysis.
+              </div>
+            )}
           </div>
 
           <div className="report-block">

@@ -75,6 +75,7 @@
 
 .topbar__corridor-line strong {
   font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 
 .topbar__corridor-line span,
@@ -135,6 +136,7 @@
 .panel-grid {
   display: grid;
   gap: 1rem;
+  align-items: stretch;
 }
 
 .panel-grid--overview {
@@ -146,10 +148,13 @@
 }
 
 .section-card {
+  display: flex;
+  flex-direction: column;
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
   min-width: 0;
+  height: 100%;
 }
 
 .section-card__header {
@@ -173,6 +178,7 @@
 
 .section-card__body {
   padding: 1rem;
+  flex: 1;
 }
 
 .analysis-panel,
@@ -192,14 +198,32 @@
   align-items: end;
 }
 
+.analysis-form--route {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .field {
   display: grid;
   gap: 0.38rem;
 }
 
+.field--wide {
+  grid-column: span 2;
+}
+
 .field span {
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.field textarea {
+  min-height: 88px;
+  resize: vertical;
+  font: inherit;
+}
+
+.analysis-form--route .primary-button {
+  grid-column: span 4;
 }
 
 .primary-button {
@@ -264,6 +288,7 @@
 
 .report-block,
 .recommendation-callout {
+  height: 100%;
   padding: 0.95rem;
   border: 1px solid var(--border);
   background: var(--bg-panel);
@@ -325,6 +350,7 @@
   margin: 0;
   text-align: right;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .report-list--dense div {
@@ -532,6 +558,31 @@
   gap: 0.8rem;
 }
 
+.tracking-lookup__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.tracking-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tracking-meta > div {
+  padding: 0.8rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--bg-muted);
+}
+
+.tracking-meta span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
 .timeline {
   display: grid;
   gap: 0.8rem;
@@ -593,8 +644,16 @@
   }
 
   .analysis-form,
-  .weather-controls {
+  .analysis-form--route,
+  .weather-controls,
+  .tracking-lookup__controls,
+  .tracking-meta {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field--wide,
+  .analysis-form--route .primary-button {
+    grid-column: span 2;
   }
 }
 
@@ -604,10 +663,13 @@
   }
 
   .analysis-form,
+  .analysis-form--route,
   .weather-controls,
+  .tracking-lookup__controls,
   .metric-grid,
   .metric-grid--compact,
   .weather-summary-strip,
+  .tracking-meta,
   .topbar__status-grid,
   .trend-strip {
     grid-template-columns: 1fr;
@@ -619,5 +681,10 @@
 
   .map-shell {
     height: 300px;
+  }
+
+  .field--wide,
+  .analysis-form--route .primary-button {
+    grid-column: span 1;
   }
 }

@@ -42,6 +42,9 @@ function formatStatus(status) {
 export default function TopBar({ serviceStatus, routeData, shipmentRecord }) {
   const route = routeData?.route
   const risk = routeData?.risk
+  const corridorLabel = route
+    ? `${route.source_details?.label || route.source} -> ${route.destination_details?.label || route.destination}`
+    : 'Awaiting route analysis'
 
   const statusItems = [
     { key: 'backend', label: 'Backend', value: serviceStatus.backend },
@@ -63,7 +66,7 @@ export default function TopBar({ serviceStatus, routeData, shipmentRecord }) {
       <div className="topbar__corridor">
         <p className="topbar__product">Active corridor</p>
         <div className="topbar__corridor-line">
-          <strong>{route ? `${route.source} -> ${route.destination}` : 'Awaiting route analysis'}</strong>
+          <strong>{corridorLabel}</strong>
           <span>
             {risk ? `${risk.overall_risk} risk / ${risk.weighted_score_pct}% score` : 'Run analysis to load route intelligence'}
           </span>

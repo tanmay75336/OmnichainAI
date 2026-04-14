@@ -1,6 +1,6 @@
 import SectionCard from './SectionCard'
 import StatusPill from './StatusPill'
-import { formatNumber } from '../utils/formatters'
+import { formatDateLabel, formatNumber } from '../utils/formatters'
 
 function NewsStateTag({ newsState }) {
   if (newsState.status === 'ready') {
@@ -18,32 +18,33 @@ function NewsStateTag({ newsState }) {
   return <StatusPill label="Awaiting route" tone="neutral" />
 }
 
-export default function WeatherNewsPanel({ routeData, weatherTrend, newsState }) {
+export default function WeatherNewsPanel({ routeData, newsState }) {
   const weather = routeData?.weather
+  const weatherOutlook = routeData?.weather_outlook || []
 
   return (
     <SectionCard
       title="Weather + News Panel"
-      subtitle="Weather summary, trend signal, external intelligence"
+      subtitle="Current conditions and the upcoming route weather outlook"
       aside={<NewsStateTag newsState={newsState} />}
     >
       <div className="weather-news-grid">
         <div className="weather-news-block">
-          <h3>Weather summary</h3>
+          <h3>Route weather overview</h3>
           {weather ? (
             <>
               <dl className="report-list report-list--dense">
                 <div>
-                  <dt>Description</dt>
+                  <dt>Current description</dt>
                   <dd>{weather.description}</dd>
+                </div>
+                <div>
+                  <dt>Temperature</dt>
+                  <dd>{formatNumber(weather.temperature, 1)} C</dd>
                 </div>
                 <div>
                   <dt>Rainfall</dt>
                   <dd>{formatNumber(weather.rainfall_mm, 1)} mm</dd>
-                </div>
-                <div>
-                  <dt>Wind speed</dt>
-                  <dd>{formatNumber(weather.wind_speed, 1)} m/s</dd>
                 </div>
                 <div>
                   <dt>Visibility</dt>
@@ -51,24 +52,36 @@ export default function WeatherNewsPanel({ routeData, weatherTrend, newsState })
                 </div>
               </dl>
 
-              <div className="trend-strip">
-                {weatherTrend.map((point) => (
-                  <div key={point.label} className="trend-strip__item">
-                    <span>{point.label}</span>
-                    <div className="trend-strip__bar">
-                      <div
-                        className="trend-strip__fill"
-                        style={{ height: `${point.level}%` }}
-                      />
-                    </div>
-                    <strong>{point.level}</strong>
-                  </div>
-                ))}
+              <div className="table-wrap">
+                <table className="intelligence-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Avg Temp</th>
+                      <th>Range</th>
+                      <th>Condition</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {weatherOutlook.map((day) => (
+                      <tr key={`${day.date || day.date_index}`}>
+                        <td>{day.date ? formatDateLabel(day.date) : `Day ${day.date_index + 1}`}</td>
+                        <td>{formatNumber(day.avg_temp_c, 1)} C</td>
+                        <td>
+                          {formatNumber(day.min_temp_c, 1)} C
+                          {' / '}
+                          {formatNumber(day.max_temp_c, 1)} C
+                        </td>
+                        <td>{day.condition_label}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </>
           ) : (
             <div className="empty-state">
-              Weather and trend data will appear after route analysis.
+              Weather and weekly route outlook will appear after route analysis.
             </div>
           )}
         </div>

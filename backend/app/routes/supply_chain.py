@@ -22,7 +22,8 @@ def get_route():
     source = payload.get("source")
     destination = payload.get("destination")
     transport_mode = payload.get("transport_mode")
-    region_type = payload.get("region_type", "tier_2")
+    region_type = payload.get("region_type")
+    cargo = payload.get("cargo") or {}
 
     if not source or not destination or not transport_mode:
         raise ValidationError(
@@ -34,6 +35,7 @@ def get_route():
         destination=destination,
         transport_mode=transport_mode,
         region_type=region_type,
+        cargo=cargo,
         config=current_app.config,
         logger=current_app.logger,
     )
@@ -61,7 +63,8 @@ def simulate():
     source = route_payload.get("source")
     destination = route_payload.get("destination")
     transport_mode = route_payload.get("transport_mode")
-    region_type = route_payload.get("region_type", "tier_2")
+    region_type = route_payload.get("region_type")
+    cargo = route_payload.get("cargo") or {}
 
     if not source or not destination or not transport_mode:
         raise ValidationError(
@@ -73,6 +76,7 @@ def simulate():
         destination=destination,
         transport_mode=transport_mode,
         region_type=region_type,
+        cargo=cargo,
         config=current_app.config,
         logger=current_app.logger,
     )

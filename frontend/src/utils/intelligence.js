@@ -112,6 +112,7 @@ export function buildOperationalAlerts({
   const signals = deriveDisruptionSignals({ routeData, shipmentDate })
   const intelligence = routeData.intelligence || {}
   const weakPoints = intelligence.weak_points || []
+  const traffic = routeData.route?.traffic_analysis
 
   intelligence.alerts?.forEach((alert) => {
     items.push({
@@ -137,6 +138,15 @@ export function buildOperationalAlerts({
       source: 'Weak point',
     })
   })
+
+  if (traffic?.projected_delay_minutes > 0) {
+    items.push({
+      title: `${traffic.projected_delay_minutes} min projected traffic delay`,
+      detail: traffic.advisory,
+      tone: traffic.projected_delay_minutes >= 15 ? 'danger' : 'warning',
+      source: 'Traffic model',
+    })
+  }
 
   if (simulationResult?.summary) {
     items.push({

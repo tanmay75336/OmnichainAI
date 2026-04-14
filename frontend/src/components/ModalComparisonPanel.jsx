@@ -3,11 +3,12 @@ import { formatCurrency, formatPercent } from '../utils/formatters'
 
 export default function ModalComparisonPanel({ routeData }) {
   const options = routeData?.modal_options || []
+  const modeEstimates = routeData?.shipment_pricing?.mode_estimates || {}
 
   return (
     <SectionCard
       title="Multi-Modal Comparison"
-      subtitle="Road / Rail / Air / Waterways"
+      subtitle="Road / Rail / Air / Waterways with cargo-aware quote math"
       aside={<span className="section-card__hint">Table-first comparison, as requested</span>}
     >
       {options.length ? (
@@ -31,10 +32,18 @@ export default function ModalComparisonPanel({ routeData }) {
                 >
                   <td>{option.label}</td>
                   <td>{option.duration_text}</td>
-                  <td>{formatCurrency(option.estimated_cost_inr)}</td>
+                  <td>
+                    {formatCurrency(
+                      modeEstimates[option.mode]?.estimated_total_cost_inr || option.estimated_cost_inr
+                    )}
+                  </td>
                   <td>{option.overall_risk}</td>
                   <td>{formatPercent(option.reliability_score_pct)}</td>
-                  <td>{option.is_recommended ? 'Preferred under current risk' : 'Standby option'}</td>
+                  <td>
+                    {option.is_recommended
+                      ? 'Preferred under current risk'
+                      : 'Standby option'}
+                  </td>
                 </tr>
               ))}
             </tbody>
